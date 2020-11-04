@@ -5,36 +5,85 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    [Header("Gameobject References")]
     public GameObject server;
-
     public List<GameObject> clients;
+    [Space]
+    [Header("Boolean value for touch detection")]
+    public bool tap;
 
-    private List<LineRenderer> lines = new List<LineRenderer>();
+    [Space]
+    [Header("Layers to limit the touch distance")]
+    public LayerMask floorMask;
+
+
+    public float lineWidth; // use the same as you set in the line renderer.
+
+    private CapsuleCollider capsule;
+    private Camera cam;
+
+    private void Awake()
+    {
+        cam = Camera.main;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        foreach(GameObject gObj in clients)
+        foreach (GameObject gObj in clients)
         {
-            LineRenderer lr = gObj.GetComponent<LineRenderer>();
+            LineRenderer lr = gObj.GetComponentInChildren<LineRenderer>();
 
-            lines.Add(lr);
+            InitLinePos(lr, gObj);
 
-            SetLinePostions(lr, gObj);
         }
     }
 
-    private void SetLinePostions(LineRenderer lr, GameObject gObj)
-    {
-        lr.SetPosition(0, gObj.transform.position);
-        lr.SetPosition(1, server.transform.position);
-    }
-
-
+    
 
     // Update is called once per frame
     void Update()
     {
-        
+        TouchDetect();
+    }
+
+    private void InitLinePos(LineRenderer lr, GameObject gObj)
+    {
+        lineWidth = lr.startWidth;
+
+        capsule = gObj.transform.GetChild(0).gameObject.AddComponent<CapsuleCollider>();
+        capsule.radius = lineWidth / 2;
+        capsule.center = Vector3.zero;
+        capsule.direction = 2; // Z-axis for easier "LookAt" orientation
+
+        lr.SetPosition(0, gObj.transform.position);
+        lr.SetPosition(1, server.transform.position);
+
+        capsule.transform.position = gObj.transform.position + (server.transform.position - gObj.transform.position) / 2;
+        capsule.transform.LookAt(gObj.transform.position);
+        capsule.height = (server.transform.position - gObj.transform.position).magnitude;
+
+    }
+
+
+    private void TouchDetect()
+    {
+        tap = false;
+
+        if(Input.touchCount>0)
+        {
+            if(Input.GetTouch(0).phase==TouchPhase.Began)
+            {
+                Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
+
+                RaycastHit hit;
+
+                if(Physics.Raycast(ray,out hit,floorMask))
+                {
+                    tap = true;
+                    Debug.Log("Tapped");
+                }
+            }
+        }
     }
 }
