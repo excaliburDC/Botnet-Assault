@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +7,8 @@ public class GameController : MonoBehaviour
     [Header("Gameobject References")]
     public GameObject server;
     public List<GameObject> clients;
+    public Material deactivatedMat;
+
     [Space]
     [Header("Boolean value for touch detection")]
     public bool tap;
@@ -16,11 +17,16 @@ public class GameController : MonoBehaviour
     [Header("Layers to limit the touch distance")]
     public LayerMask floorMask;
 
+    [Space]
+    [Header("Public variables")]
+    public float spawnRate = 0.2f;
+
 
     public float lineWidth; // use the same as you set in the line renderer.
 
     private CapsuleCollider capsule;
     private Camera cam;
+    private bool isLineDeactivated=false;
 
     private void Awake()
     {
@@ -33,7 +39,6 @@ public class GameController : MonoBehaviour
         foreach (GameObject gObj in clients)
         {
             LineRenderer lr = gObj.GetComponentInChildren<LineRenderer>();
-
             InitLinePos(lr, gObj);
 
         }
@@ -45,6 +50,16 @@ public class GameController : MonoBehaviour
     void Update()
     {
         TouchDetect();
+
+        Test();
+    }
+
+    private void Test()
+    {
+        int randomSpawnPoint = Random.Range(0, clients.Count);
+
+
+        GameObject gObj = PoolManager.Instance.SpawnInWorld("Virus", clients[randomSpawnPoint].transform.position, clients[randomSpawnPoint].transform.rotation);
     }
 
     private void InitLinePos(LineRenderer lr, GameObject gObj)
@@ -81,7 +96,14 @@ public class GameController : MonoBehaviour
                 if(Physics.Raycast(ray,out hit,floorMask))
                 {
                     tap = true;
-                    Debug.Log("Tapped");
+
+                    if(hit.collider.tag=="Wire")
+                    {
+                        isLineDeactivated = true;
+                        LineRenderer lr = hit.collider.GetComponent<LineRenderer>();
+                        lr.material = deactivatedMat;
+                        Debug.Log(hit.collider.name);
+                    }
                 }
             }
         }
