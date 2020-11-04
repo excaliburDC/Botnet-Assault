@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameController : MonoBehaviour
+public class GameController : SingletonManager<GameController>
 {
     [Header("Gameobject References")]
     public GameObject server;
+    public GameObject obj;
     public List<GameObject> clients;
     public Material deactivatedMat;
 
@@ -19,7 +20,10 @@ public class GameController : MonoBehaviour
 
     [Space]
     [Header("Public variables")]
-    public float spawnRate = 0.2f;
+    public float spawnRate = 5f;
+    public float speed = 1f;
+
+
 
 
     public float lineWidth; // use the same as you set in the line renderer.
@@ -27,10 +31,16 @@ public class GameController : MonoBehaviour
     private CapsuleCollider capsule;
     private Camera cam;
     private bool isLineDeactivated=false;
+    private float timeSinceLastSpawned = 0f;
+    float timeDelay = 2f;
+    float timeUntilSpawnRateIncrease = 0.5f;
+    private List<string> poolObjString = new List<string>();
 
     private void Awake()
     {
         cam = Camera.main;
+        poolObjString.Add("Virus");
+        poolObjString.Add("Antivirus");
     }
 
     // Start is called before the first frame update
@@ -42,6 +52,8 @@ public class GameController : MonoBehaviour
             InitLinePos(lr, gObj);
 
         }
+
+       // InvokeRepeating("Test", 1f, 3f);
     }
 
     
@@ -49,18 +61,48 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+
         TouchDetect();
 
-        Test();
+
+        timeSinceLastSpawned += Time.deltaTime;
+
+        if(timeSinceLastSpawned>=spawnRate)
+        {
+            StartCoroutine(IncreaseRate());
+            timeSinceLastSpawned = 0f;
+        }
+        
+      
+
     }
 
     private void Test()
     {
         int randomSpawnPoint = Random.Range(0, clients.Count);
 
-
         GameObject gObj = PoolManager.Instance.SpawnInWorld("Virus", clients[randomSpawnPoint].transform.position, clients[randomSpawnPoint].transform.rotation);
+
+
     }
+    
+    private IEnumerator IncreaseRate()
+    {
+        
+
+        int randomSpawnPoint = Random.Range(0, clients.Count);
+        int randomObj = Random.Range(0, poolObjString.Count);
+
+
+        GameObject gObj = PoolManager.Instance.SpawnInWorld(poolObjString[randomObj], clients[randomSpawnPoint].transform.position, clients[randomSpawnPoint].transform.rotation);
+
+        yield return new WaitForSeconds(timeDelay);
+
+        timeDelay -= timeUntilSpawnRateIncrease;
+        timeDelay *= timeUntilSpawnRateIncrease;
+    }
+
 
     private void InitLinePos(LineRenderer lr, GameObject gObj)
     {

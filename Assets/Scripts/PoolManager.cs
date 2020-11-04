@@ -10,13 +10,14 @@ public class PoolObj
     public int size;
 }
 
+
 public class PoolManager : SingletonManager<PoolManager>
 {
     public List<PoolObj> pools;
     public Dictionary<string, Queue<GameObject>> poolDictionary;
 
 
-    private IPooledObject pooledObj;
+   
 
     private void Awake()
     {
@@ -59,16 +60,24 @@ public class PoolManager : SingletonManager<PoolManager>
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
 
-        pooledObj = objectToSpawn.GetComponent<IPooledObject>();
+        IPooledObject pooledObj = objectToSpawn.GetComponent<IPooledObject>();
 
         if(pooledObj!=null)
         {
+           
             pooledObj.OnObjectSpawned();
-        }
 
+            //
+
+        }
 
         poolDictionary[tag].Enqueue(objectToSpawn);
 
+
+
+
         return objectToSpawn;
     }
+
+
 }

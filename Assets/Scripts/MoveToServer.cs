@@ -2,13 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveToServer : MonoBehaviour,IPooledObject
+public enum PacketType
 {
-    public Transform target;
-    public float speed = 1.0f;
+    GOOD,
+    BAD
+}
 
-    public void OnObjectSpawned()
+public class MoveToServer : MonoBehaviour
+{
+    public PacketType packetType;
+    public float speed = 3.0f;
+
+    void Update()
     {
-        Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, GameController.Instance.server.transform.position, speed * Time.deltaTime);
     }
 }

@@ -635,10 +635,10 @@ MonoBehaviour:
   pools:
   - poolName: Virus
     poolPrefab: {fileID: 752432610015686307, guid: b0c50dfc4d6d1e84c82b1c86f7070ecc, type: 3}
-    size: 20
+    size: 100
   - poolName: Antivirus
     poolPrefab: {fileID: 4157172961087360720, guid: fa582d96c86f77b40a26cba8dd0ee97b, type: 3}
-    size: 20
+    size: 5
 --- !u!1 &1949225096
 GameObject:
   m_ObjectHideFlags: 0
@@ -683,6 +683,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   server: {fileID: 1318709041}
+  obj: {fileID: 0}
   clients:
   - {fileID: 1127550766}
   - {fileID: 1079639562}
@@ -693,6 +694,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   spawnRate: 0.2
+  speed: 5
   lineWidth: 0
 --- !u!1 &1991586472
 GameObject:
